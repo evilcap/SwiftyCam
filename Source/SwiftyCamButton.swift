@@ -50,6 +50,11 @@ public protocol SwiftyCamButtonDelegate: class {
 
 open class SwiftyCamButton: UIButton {
     
+    /// Gesture recognizers
+    
+    private var tapGestureRecognizer:  UITapGestureRecognizer?
+    private var longPressGestureRecognizer:  UILongPressGestureRecognizer?
+    
     /// Delegate variable
     
     public weak var delegate: SwiftyCamButtonDelegate?
@@ -57,6 +62,43 @@ open class SwiftyCamButton: UIButton {
     // Sets whether button is enabled
     
     public var buttonEnabled = true
+    
+    // Sets whether photo capture is enabled
+    public var photoCaptureEnabled = true {
+        didSet {
+            guard let tapGestureRecognizer = tapGestureRecognizer else {
+                return
+            }
+            
+            if photoCaptureEnabled == true {
+                self.removeGestureRecognizer(tapGestureRecognizer)
+            } else {
+                self.addGestureRecognizer(tapGestureRecognizer)
+            }
+        }
+    }
+    
+    // Sets whether video capture is enabled
+    public var videoCaptureEnabled = true {
+       didSet {
+           guard let longPressGestureRecognizer = longPressGestureRecognizer else {
+               return
+           }
+           
+           if videoCaptureEnabled == true {
+               self.removeGestureRecognizer(longPressGestureRecognizer)
+           } else {
+               self.addGestureRecognizer(longPressGestureRecognizer)
+           }
+       }
+    }
+    
+    // Sets minimum press duration for video recording
+    public var videoMinimumPressDuration = 0.5 {
+        didSet {
+            longPressGestureRecognizer?.minimumPressDuration = videoMinimumPressDuration
+        }
+    }
     
     /// Maximum duration variable
     
@@ -80,7 +122,7 @@ open class SwiftyCamButton: UIButton {
     /// UITapGestureRecognizer Function
     
     @objc fileprivate func Tap() {
-        guard buttonEnabled == true else {
+        guard (buttonEnabled == true) && (photoCaptureEnabled == true) else {
             return
         }
         
@@ -89,7 +131,7 @@ open class SwiftyCamButton: UIButton {
     
     /// UILongPressGestureRecognizer Function
     @objc fileprivate func LongPress(_ sender:UILongPressGestureRecognizer!)  {
-        guard buttonEnabled == true else {
+        guard (buttonEnabled == true) && (videoCaptureEnabled == true) else {
             return
         }
         
@@ -99,6 +141,7 @@ open class SwiftyCamButton: UIButton {
             startTimer()
         case .cancelled, .ended, .failed:
             invalidateTimer()
+            print("buttonDidEndLongPress")
             delegate?.buttonDidEndLongPress()
         default:
             break
@@ -134,8 +177,12 @@ open class SwiftyCamButton: UIButton {
     
     fileprivate func createGestureRecognizers() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(SwiftyCamButton.Tap))
-        let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(SwiftyCamButton.LongPress))
         self.addGestureRecognizer(tapGesture)
+    
+        let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(SwiftyCamButton.LongPress))
         self.addGestureRecognizer(longGesture)
+        
+        tapGestureRecognizer = tapGesture
+        longPressGestureRecognizer = longGesture
     }
 }
