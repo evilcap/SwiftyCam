@@ -141,7 +141,6 @@ open class SwiftyCamButton: UIButton {
             startTimer()
         case .cancelled, .ended, .failed:
             invalidateTimer()
-            print("buttonDidEndLongPress")
             delegate?.buttonDidEndLongPress()
         default:
             break

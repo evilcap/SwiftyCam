@@ -300,13 +300,20 @@ open class SwiftyCamViewController: UIViewController {
 	// MARK: ViewDidLoad
 
 	/// ViewDidLoad Implementation
+    
+    open func getPreviewViewParentView() -> UIView {
+        return view
+    }
 
 	override open func viewDidLoad() {
 		super.viewDidLoad()
-        previewLayer = PreviewView(frame: view.frame, videoGravity: videoGravity)
-        previewLayer.center = view.center
-        view.addSubview(previewLayer)
-        view.sendSubviewToBack(previewLayer)
+        
+        let previewParentView = self.getPreviewViewParentView()
+        
+        previewLayer = PreviewView(frame: previewParentView.bounds, videoGravity: videoGravity)
+        previewLayer.center = CGPoint(x: previewParentView.bounds.midX, y: previewParentView.bounds.midY)
+        previewParentView.addSubview(previewLayer)
+        previewParentView.sendSubviewToBack(previewLayer)
 
 		// Add Gesture Recognizers
 
@@ -352,13 +359,13 @@ open class SwiftyCamViewController: UIViewController {
             layer.videoOrientation = .portrait
         }
         
-        previewLayer.frame = self.view.bounds
+        previewLayer.frame = self.getPreviewViewParentView().bounds
 
     }
 
     override open func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-
+        
         if let connection =  self.previewLayer?.videoPreviewLayer.connection  {
 
             let currentDevice: UIDevice = UIDevice.current
