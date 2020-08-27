@@ -137,14 +137,22 @@ open class SwiftyCamButton: UIButton {
         
         switch sender.state {
         case .began:
-            delegate?.buttonDidBeginLongPress()
-            startTimer()
+            longPressStartAction()
         case .cancelled, .ended, .failed:
-            invalidateTimer()
-            delegate?.buttonDidEndLongPress()
+            longPressEndAction()
         default:
             break
         }
+    }
+    
+    public func longPressStartAction() {
+        delegate?.buttonDidBeginLongPress()
+        startTimer()
+    }
+    
+    public func longPressEndAction() {
+        invalidateTimer()
+        delegate?.buttonDidEndLongPress()
     }
     
     /// Timer Finished
